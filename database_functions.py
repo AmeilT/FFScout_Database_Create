@@ -1,6 +1,6 @@
 import pandas as pd
 
-from constants import seasons, datafilepath
+from database_constants import seasons, datafilepath
 
 #Combines data from multiple seasons into one dataframe
 def combine_data(data):

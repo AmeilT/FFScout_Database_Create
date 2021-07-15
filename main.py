@@ -1,7 +1,7 @@
 
 # tables refers to the separate dataframes containing data on separate aspects of the game: Defending, Attacking, Goal Threat, Distribution etc.
-from constants import tables
-from functions import *
+from database_constants import tables
+from database_functions import *
 
 # Import all the tables and combine all the seasons for the particular table
 df = pd.DataFrame()
