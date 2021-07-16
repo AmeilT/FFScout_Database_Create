@@ -5,10 +5,10 @@ import numpy as np
 import os
 
 from scrape_functions import create_team_table_gw
-from scraper_constants import seasons, tables, path
+from scraper_constants import seasons, team_tables, path
 
 gameweeklist = list(np.arange(1, 39))
-ffs_tables = [f'{x}_' + str(season) for season in seasons for x in tables]
+ffs_tables = [f'{x}_' + str(season) for season in seasons for x in team_tables]
 ffs_df_dict = {}
 for season in seasons:
     for feature in tables:

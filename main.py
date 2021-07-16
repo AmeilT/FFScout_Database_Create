@@ -26,7 +26,7 @@ opponents = create_fixtures()
 form_df_opponents = create_opponents_form_df()
 
 # Import team level stats
-team_stats, opponent_stats = add_oppoenents_data()
+team_stats, opponent_stats = add_opponents_data()
 
 # Merge the main df with form data on the opponents they are playing
 df = pd.merge(df, form_df_opponents[

@@ -3,10 +3,11 @@ import pandas as pd
 from database_constants import seasons, datafilepath
 
 #Combines data from multiple seasons into one dataframe
+
 def combine_data(data):
     combined=pd.DataFrame()
     for season in seasons:
-        df=pd.read_csv(rf"{datafilepath}/{data}_{season}")
+        df=pd.read_csv(rf"{datafilepath}\{data}_{season}")
         df.drop(df.columns[0],1,inplace=True)
         df["Season"]=season
         cols=list(df.columns)
@@ -30,7 +31,7 @@ def create_fixtures():
     short_team_names = ['ARS', 'AVL', 'BLA', 'BOL', 'BOU', "BHA", 'BUR',
                         'CAR', 'CHE', 'CRY', 'EVE', 'FUL', 'HUD', 'HUL', 'LEE', 'LEI', 'LIV', 'MCI', 'MUN', 'MID',
                         'NEW', 'NOR', 'QPR', 'RDG', 'SHU', 'SOU', 'STK', 'SUN', 'SWA', 'TOT', 'WAT', 'WBA', 'WHU',
-                        'WIG', 'WOL']
+                        'WIG', 'WOL'] #TODO MAKE THIS A CONSTANT
     dict_team = {i: j for i, j in zip(long_team_names, short_team_names)}
     reverse_dict_team = {j: i for i, j in zip(long_team_names, short_team_names)}
     form_df["Short Team Name"] = [dict_team[x] for x in form_df["Team"]]
@@ -109,13 +110,13 @@ def create_opponents_form_df():
 
 # So far only focused on getting data on the team played for, but need have data on the opponent's defence/attack
 
-def add_oppoenents_data():
+def add_opponents_data():
     data = ["defending", "goalthreat"]
     teams_defending = pd.DataFrame()
     teams_attacking = pd.DataFrame()
     for season in seasons:
         team_defending = pd.read_csv(rf"{datafilepath}/team_{season}_defending")
-        team_attacking = pd.read_csv(rf"{datafilepath}/team_{season}_goalthreat")
+        team_attacking = pd.read_csv(rf"{datafilepath}/team_{season}_goal-threat")
         print(season, len(team_defending), len(team_attacking))
 
         for form in data:
