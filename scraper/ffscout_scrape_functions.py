@@ -1,13 +1,14 @@
-from  selenium import webdriver
-import time
-from webdriver_manager.chrome import ChromeDriverManager
-driver = webdriver.Chrome(ChromeDriverManager().install())
+#from webdriver_manager.chrome import ChromeDriverManager
+#driver = webdriver.Chrome(ChromeDriverManager().install())
+
 import numpy as np
 import pandas as pd
-
+from selenium import webdriver
+import time
 from selenium.webdriver.support.ui import Select
 
 from scraper_constants import *
+
 
 def get_historicals_by_gw(season, gameweeklist, form):
     # Choose League URL
@@ -47,7 +48,7 @@ def get_historicals_by_gw(season, gameweeklist, form):
 
             # apply filter button
             select_all_team_button = \
-            driver.find_elements_by_xpath('//*[@id="content"]/div/div[1]/div[2]/div/div[2]/form/div/input[1]')[0]
+                driver.find_elements_by_xpath('//*[@id="content"]/div/div[1]/div[2]/div/div[2]/form/div/input[1]')[0]
             select_all_team_button.click()
 
             select = Select(driver.find_element_by_id('frange'))
@@ -91,5 +92,3 @@ def get_historicals_by_gw(season, gameweeklist, form):
         df = df.append(playerdf)
 
     return df
-
-
