@@ -1,4 +1,4 @@
-from ffscout_scrape_functions import get_historicals_by_gw
+from scrape_functions import get_historicals_by_gw
 from scraper_constants import seasons, tables, path
 import numpy as np
 import os

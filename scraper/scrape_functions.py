@@ -1,5 +1,5 @@
-#from webdriver_manager.chrome import ChromeDriverManager
-#driver = webdriver.Chrome(ChromeDriverManager().install())
+# from webdriver_manager.chrome import ChromeDriverManager
+# driver = webdriver.Chrome(ChromeDriverManager().install())
 
 import numpy as np
 import pandas as pd
@@ -90,5 +90,61 @@ def get_historicals_by_gw(season, gameweeklist, form):
         playerdf = pd.concat([df_dict["defenders"], df_dict["midfielders"], df_dict["forwards"]], axis=0,
                              ignore_index=True)
         df = df.append(playerdf)
+
+    return df
+
+
+# Team gw
+def create_team_table_gw(season, gameweeklist, form):
+    # Teams
+    # Choose League URL
+    driver = webdriver.Chrome(r"C:\Users\ameil\chromedriver.exe")
+    url = f"https://members.fantasyfootballscout.co.uk/team-stats/{form}/"
+    driver.get(url)
+    driver.find_element_by_id("user_login").send_keys("zizzou123")
+    driver.find_element_by_id("user_pass").send_keys("Afc4life")
+    time.sleep(2)
+    driver.find_element_by_name("login").click()
+
+    select = Select(driver.find_element_by_id('frange'))
+    select.select_by_value("GAMEWEEK_RANGE")
+
+    select = Select(driver.find_element_by_id('fsid'))
+    select.select_by_value(season)
+
+    # click gw filter button
+    filter_button = "/html/body/div[1]/div/div[3]/div/div[1]/div[2]/div/div[1]/form/div/input[1]"
+    driver.find_element_by_xpath(filter_button).click()
+
+    df = pd.DataFrame()
+
+    for gw in gameweeklist:
+        select = Select(driver.find_element_by_id('fgameweek-start'))
+        select.select_by_visible_text(str(gw))
+        select = Select(driver.find_element_by_id('fgameweek-end'))
+        select.select_by_visible_text(str(gw))
+
+        filterconfirm = "/html/body/div[1]/div/div[3]/div/div[1]/div[2]/div/div[1]/form/div/input[1]"
+        driver.find_element_by_xpath(filterconfirm).click()
+        time.sleep(3)
+        tbl = driver.find_element_by_xpath("//*[@id='DataTables_Table_0']").get_attribute('outerHTML')
+        df_list = pd.read_html(tbl)
+        tablename = df_list[0]
+        cols = list(map("".join, tablename.columns.values))
+        tablename.columns = cols
+        tablename = tablename.rename(columns={"Unnamed: 0_level_0Team": "Team",
+                                              "Unnamed: 1_level_0Plyd": "Games Played"})
+        if form == "defending":
+            tablename = tablename.rename(columns={'Unnamed: 2_level_0GC': 'Goals Conceded'
+                , "Unnamed: 3_level_0CS": "Clean Sheets"})
+
+        tablename["Team"].apply(lambda x: str(x))
+        tablename["Season"] = season
+        tablename["GW ID"] = gw
+
+        if df.empty:
+            df = tablename
+        else:
+            df = df.append(tablename)
 
     return df
