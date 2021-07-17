@@ -7,7 +7,7 @@ from selenium import webdriver
 import time
 from selenium.webdriver.support.ui import Select
 
-from scraper_constants import *
+from scraper.scraper_constants import *
 
 
 def get_historicals_by_gw(season, gameweeklist, form):
@@ -148,3 +148,59 @@ def create_team_table_gw(season, gameweeklist, form):
             df = df.append(tablename)
 
     return df
+
+#Used for scraping results
+
+
+ #functions to clean data
+def get_result(x):
+    return x.split("FT")[0].strip()
+def get_date(x):
+    return x[-14:]
+def home_goals(x):
+    return x[0]
+def away_goals(x):
+    return x[-1]
+def get_GW_ID(x):
+    return int(x.split(" ")[1])
+
+
+def get_GW_ID(x):
+    return int(x.split(" ")[1])
+
+
+def form_to_numbers(form):
+    # give x points for a win, y for a draw and -z for a loss (in future the points should depend on the team played)
+
+    numbers = list(form)
+
+    while "W" in numbers:
+        numbers[numbers.index("W")] = 3
+    while "L" in numbers:
+        numbers[numbers.index("L")] = -3
+    while "D" in numbers:
+        numbers[numbers.index("D")] = 1
+
+    return numbers
+
+
+def number_to_measure(numbers, alphadecay=0.1):
+    # turn number into a single measure of form
+    alpha = 1
+    measure = 0
+    for number in numbers:
+        measure += number * alpha
+        alpha -= alphadecay
+    measure = round(measure, 3)
+
+    return measure
+
+def match_points(x):
+    if x["Form"]=="W":
+        return 3
+    if x["Form"]=="D":
+        return 0
+    if x["Form"]=="L":
+        return -2
+
+
