@@ -27,7 +27,7 @@ results = pd.DataFrame()
 for season in seasons:
 
     select = Select(driver.find_element_by_id('fsid'))
-    select.select_by_value(season)
+    select.select_by_value(str(season))
     driver.find_element_by_xpath("/html/body/div[1]/div/div[3]/div/div[1]/div[2]/div/div/form/div/input[1]").click()
 
     for i in range(1, 39):
@@ -171,10 +171,13 @@ rolling_data["Form Measure Rolling Points"] = rolling_data["Points"].rolling(4).
 df = pd.merge(rolling_data, form_history[["Season", "Team", "GW ID", "Last N games", "Form"]],
               left_on=["Season", "Team", "GW ID"], right_on=["Season", "Team", "GW ID"])
 
-df["Form Measure EWM Points"] = rolling_data["Points"].ewm(min_periods=3, alpha=0.1).mean().shift()
-df.drop("Form Measure", axis=1, inplace=True)
+df["Form Measure EWM Points"]=rolling_data["Points"].ewm(min_periods=3,alpha=0.1).mean()
+
 df_noshift = df.copy()
-df_noshift["Form Measure EWM"] = rolling_data["Points"].ewm(min_periods=3, alpha=0.1).mean()
+
+df["Form Measure EWM Points"] = df["Form Measure EWM Points"].shift()
+df["Form Measure User Defined"] = df["Form Measure User Defined"].shift()
+df["Form Measure Rolling Points"] =df["Form Measure Rolling Points"].shift()
 
 df.to_csv("PL Form Historical", index=False)
 df_noshift.to_csv("PL Form Historical_noshift", index=False)
