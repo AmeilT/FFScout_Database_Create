@@ -1,6 +1,6 @@
 
 # tables refers to the separate dataframes containing data on separate aspects of the game: Defending, Attacking, Goal Threat, Distribution etc.
-from database_constants import tables
+from database_constants import tables,dataframe_save_path
 from database_functions import *
 import logging
 
@@ -279,5 +279,7 @@ df["Attacking FPL Points"] = list(
     map(calculate_fpl_points, df["Position"], df["Goals"], df["Total Assists"], df["Fantasy Clean Sheet"]))
 droplist = [x for x in list(df.columns) if "20" in x.upper()]
 df.drop(droplist, inplace=True, axis=1)
+
+df.to_csv(dataframe_save_path)
 logging.info("Dataframe:")
 print(df.head)
