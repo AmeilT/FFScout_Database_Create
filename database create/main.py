@@ -2,8 +2,15 @@
 # tables refers to the separate dataframes containing data on separate aspects of the game: Defending, Attacking, Goal Threat, Distribution etc.
 from database_constants import tables
 from database_functions import *
+import logging
+
+logging.basicConfig(format='%(process)d-%(levelname)s-%(message)s')
+
 
 # Import all the tables and combine all the seasons for the particular table
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.info("Combining dataframes")
+
 df = pd.DataFrame()
 add_df = pd.DataFrame()
 for table in tables:
@@ -20,15 +27,21 @@ for table in tables:
         print(f"Added {table}")
 
 # For each season and each GW within a season map the home and away teams- do this using the short name
+logging.info("Create Opponent dataframe")
+
 opponents = create_fixtures()
 
 # Import the separately created form data for each team for each GW in a season
+logging.info("Importing Opponent Form")
+
 form_df_opponents = create_opponents_form_df()
 
 # Import team level stats
+logging.info("Importing Team Stats")
 team_stats, opponent_stats = add_opponents_data()
 
 # Merge the main df with form data on the opponents they are playing
+logging.info("Combining with opponent form data")
 df = pd.merge(df, form_df_opponents[
     ["Season", "GW ID", "Short Team Name", "Form Measure EWM", "Last N games", "Form Measure EWM_Opponent",
      "Last N games_Opponent", "Opponent"]], how='inner',
@@ -37,6 +50,7 @@ df = pd.merge(df, form_df_opponents[
 
 # Then merge with opponents stats. This give us a players stats and opponents stats in one df /
 # for a specific GW in a given season
+logging.info("Combining with opponent stats")
 df = pd.merge(df, opponent_stats[['Season', 'GW ID', 'Opponent',
                                   'MA Opponent GoalsTotal',
                                   'MA Opponent AttemptsTotal', 'MA Opponent AttemptsIn', 'MA Opponent AttemptsBCT',
@@ -57,6 +71,7 @@ df = pd.merge(df, opponent_stats[['Season', 'GW ID', 'Opponent',
               how="inner", left_on=["Season", "Gameweek", "Opponent"], right_on=["Season", "GW ID", "Opponent"])
 
 # Same as above but bringing in own team stats
+logging.info("Combining own team stats")
 df = pd.merge(df, team_stats[['Season', 'GW ID', 'Team',
                               'MA Team GoalsTotal',
                               'MA Team AttemptsTotal', 'MA Team AttemptsIn', 'MA Team AttemptsBCT',
@@ -85,6 +100,8 @@ df.columns = a
 # For example in 2020 FFScout change Goal Attempts In box to mean Goals scored in error and this needs to be corrected
 # new_column_names = dict.fromkeys(list(df.columns) , 1)
 # new_column_names={i:i for i in new_column_names.keys()}
+logging.info("Cleaning Column Names")
+
 new_column_names = {'Name': 'Name',
                     'Season': 'Season',
                     'Gameweek': 'GW ID1',
@@ -256,9 +273,11 @@ droplist = [x for x in list(df.columns) if "DELETE" in x.upper()]
 df.drop(droplist, inplace=True, axis=1)
 
 # New field to assign attacking points to each player.
+logging.info("Calculating Attacking FPL Points")
+
 df["Attacking FPL Points"] = list(
     map(calculate_fpl_points, df["Position"], df["Goals"], df["Total Assists"], df["Fantasy Clean Sheet"]))
 droplist = [x for x in list(df.columns) if "20" in x.upper()]
 df.drop(droplist, inplace=True, axis=1)
-
+logging.info("Dataframe:")
 print(df.head)
